@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D-Movies</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --card: #1e1e1e;
+  --card-hover: #262626;
+  --border: #2a2a2a;
+  --accent: #e8b84b;
+  --accent2: #f5d080;
+  --text: #f0f0f0;
+  --muted: #888;
+  --red: #e74c3c;
+  --yellow: #f1c40f;
+  --green: #2ecc71;
+  --netflix: #e50914;
+  --hbo: #9B59B6;
+  --amazon: #FF9900;
+  --disney: #1135a3;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 20%,rgba(232,184,75,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:rgba(13,13,13,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;gap:24px;height:68px}
+.logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--accent);letter-spacing:1px;white-space:nowrap;flex-shrink:0;text-shadow:0 0 30px rgba(232,184,75,.3)}
+.logo span{color:var(--text)}
+nav{display:flex;gap:4px;flex-shrink:0}
+nav button{background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.9rem;padding:8px 16px;border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap}
+nav button:hover,nav button.active{color:var(--text);background:var(--card)}
+nav button.active{color:var(--accent)}
+.search-wrap{flex:1;max-width:380px;position:relative}
+.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+#searchInput{width:100%;background:var(--card);border:1px solid var(--border);border-radius:50px;padding:9px 16px 9px 42px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+#searchInput:focus{border-color:var(--accent)}
+#searchInput::placeholder{color:var(--muted)}
+.header-actions{margin-left:auto;display:flex;gap:12px;align-items:center}
+.btn-icon{background:var(--card);border:1px solid var(--border);color:var(--muted);width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.btn-icon:hover{color:var(--accent);border-color:var(--accent)}
+
+/* MAIN */
+main{position:relative;z-index:1;padding:32px}
+
+/* SECTION */
+.section{margin-bottom:48px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--text)}
+.section-title span{color:var(--accent)}
+.btn-see-all{background:none;border:1px solid var(--border);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:6px 14px;border-radius:50px;cursor:pointer;transition:all .2s}
+.btn-see-all:hover{border-color:var(--accent);color:var(--accent)}
+
+/* PLATFORM FILTERS */
+.platform-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.platform-pill{padding:6px 16px;border-radius:50px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.platform-pill:hover{border-color:var(--accent);color:var(--text)}
+.platform-pill.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:500}
+.platform-pill.netflix{--pc:var(--netflix)}
+.platform-pill.hbo{--pc:var(--hbo)}
+.platform-pill.amazon{--pc:var(--amazon)}
+.platform-pill.disney{--pc:var(--disney)}
+.platform-pill.active.netflix{background:var(--netflix);border-color:var(--netflix);color:#fff}
+.platform-pill.active.hbo{background:var(--hbo);border-color:var(--hbo);color:#fff}
+.platform-pill.active.amazon{background:var(--amazon);border-color:var(--amazon);color:#000}
+.platform-pill.active.disney{background:var(--disney);border-color:var(--disney);color:#fff}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px}
+.grid.large{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+
+/* CARD */
+.card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;position:relative;transition:transform .25s,box-shadow .25s;animation:fadeUp .4s ease both}
+.card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 20px 50px rgba(0,0,0,.6)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card-poster{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--surface)}
+.card-poster-placeholder{width:100%;aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem}
+.card-body{padding:10px 12px 12px}
+.card-title{font-size:.85rem;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.card-meta{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--muted)}
+.card-rating{color:var(--accent);font-weight:500}
+.card-platform-badge{position:absolute;top:8px;right:8px;padding:3px 8px;border-radius:4px;font-size:.7rem;font-weight:700;letter-spacing:.5px}
+.badge-netflix{background:var(--netflix);color:#fff}
+.badge-hbo{background:var(--hbo);color:#fff}
+.badge-amazon{background:var(--amazon);color:#000}
+.badge-disney{background:var(--disney);color:#fff}
+.badge-otro{background:var(--border);color:var(--text)}
+.card-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.1)}
+.card-progress-bar{height:100%;background:var(--accent);transition:width .3s}
+
+/* TOOLTIP SINOPSIS */
+.card-tooltip{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.98) 0%,rgba(0,0,0,.7) 60%,transparent 100%);opacity:0;transition:opacity .3s;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;pointer-events:none;border-radius:12px}
+.card:hover .card-tooltip{opacity:1}
+.tooltip-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;margin-bottom:6px;color:#fff}
+.tooltip-overview{font-size:.75rem;line-height:1.5;color:rgba(255,255,255,.8);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.tooltip-genres{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.tooltip-genre{background:rgba(255,255,255,.1);padding:2px 8px;border-radius:50px;font-size:.68rem;color:rgba(255,255,255,.7)}
+
+/* MODAL DETALLE */
+#modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);overflow-y:auto;padding:40px 20px}
+#modal.open{display:flex;align-items:flex-start;justify-content:center}
+.modal-inner{width:100%;max-width:900px;background:var(--surface);border-radius:20px;overflow:hidden;border:1px solid var(--border);animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-backdrop{position:relative;height:360px;overflow:hidden}
+.modal-backdrop img{width:100%;height:100%;object-fit:cover;filter:brightness(.4)}
+.modal-backdrop-gradient{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,var(--surface) 100%)}
+.modal-backdrop-content{position:absolute;bottom:0;left:0;right:0;padding:32px}
+.modal-title{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;margin-bottom:8px;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+.modal-tagline{font-size:.9rem;color:var(--muted);font-style:italic;margin-bottom:16px}
+.modal-badges{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.modal-badge{padding:4px 12px;border-radius:50px;font-size:.78rem;font-weight:500}
+.badge-year{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.badge-rating{background:rgba(232,184,75,.15);color:var(--accent);border:1px solid rgba(232,184,75,.3)}
+.badge-genre{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.badge-duration{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.modal-body{padding:28px 32px}
+.modal-actions{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#000;border:none;padding:12px 28px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);padding:12px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-close{position:absolute;top:16px;right:16px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1);color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10}
+.btn-close:hover{background:var(--red)}
+.modal-overview{font-size:.95rem;line-height:1.7;color:rgba(255,255,255,.85);margin-bottom:28px}
+.modal-section-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--accent)}
+
+/* GUÍA PARENTAL */
+.parental-guide{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.parental-item{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:10px;padding:10px 14px;border:1px solid var(--border)}
+.parental-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}
+.dot-yellow{background:var(--yellow)}
+.dot-red{background:var(--red)}
+.parental-label{font-size:.8rem;color:var(--muted)}
+.parental-value{font-size:.8rem;font-weight:500}
+
+/* SERVIDORES */
+.servers-section{margin-bottom:28px}
+.server-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.server-tab{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;transition:all .2s}
+.server-tab:hover{border-color:var(--accent);color:var(--text)}
+.server-tab.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
+.lang-tabs{display:flex;gap:6px;margin-bottom:12px}
+.lang-tab{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.82rem;transition:all .2s}
+.lang-tab.active{border-color:var(--accent);color:var(--accent)}
+.player-wrap{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9}
+.player-wrap iframe{width:100%;height:100%;border:none}
+.player-wrap video{width:100%;height:100%}
+.player-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--muted);font-size:.9rem}
+.player-placeholder svg{opacity:.3}
+
+/* TEMPORADAS */
+.seasons-section{margin-bottom:28px}
+.season-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.season-tab{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:all .2s}
+.season-tab.active{border-color:var(--accent);color:var(--accent)}
+.episodes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.episode-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;position:relative}
+.episode-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.episode-card.playing{border-color:var(--accent);background:rgba(232,184,75,.08)}
+.episode-number{font-size:.75rem;color:var(--accent);font-weight:600;margin-bottom:4px}
+.episode-title{font-size:.88rem;font-weight:500;margin-bottom:4px}
+.episode-meta{font-size:.75rem;color:var(--muted)}
+.episode-progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.05);border-radius:0 0 10px 10px}
+.episode-progress-bar{height:100%;background:var(--accent);border-radius:0 0 10px 10px}
+
+/* RECOMENDACIONES */
+.recommendations{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+
+/* MODAL TRAILER */
+#trailerModal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px}
+#trailerModal.open{display:flex}
+.trailer-inner{width:100%;max-width:900px;position:relative}
+.trailer-close{position:absolute;top:-44px;right:0;background:none;border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.85rem}
+.trailer-player{aspect-ratio:16/9;border-radius:12px;overflow:hidden}
+.trailer-player iframe{width:100%;height:100%;border:none}
+
+/* HISTORIAL / FAVORITOS PAGE */
+.page{display:none}
+.page.active{display:block}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty-state svg{opacity:.2;margin-bottom:16px}
+.empty-state p{font-size:.95rem}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:10px 24px;font-size:.85rem;color:var(--text);opacity:0;transition:opacity .3s,transform .3s;z-index:600;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5);white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* LOADING */
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px}
+.skeleton{background:var(--card);border-radius:12px;overflow:hidden;animation:pulse 1.5s ease infinite}
+.skeleton-poster{width:100%;aspect-ratio:2/3;background:var(--border)}
+.skeleton-body{padding:10px 12px 12px}
+.skeleton-line{height:12px;background:var(--border);border-radius:4px;margin-bottom:8px}
+.skeleton-line.short{width:60%}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  header{padding:0 16px;gap:12px;height:58px}
+  .logo{font-size:1.4rem}
+  nav{display:none}
+  main{padding:20px 16px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}
+  .modal-backdrop{height:240px}
+  .modal-title{font-size:1.5rem}
+  .modal-body{padding:20px}
+  .modal-actions{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">D<span>-Movies</span></div>
+  <nav>
+    <button class="active" onclick="showPage('home')">Inicio</button>
+    <button onclick="showPage('movies')">Películas</button>
+    <button onclick="showPage('series')">Series</button>
+    <button onclick="showPage('docs')">Documentales</button>
+    <button onclick="showPage('favorites')">Favoritos</button>
+    <button onclick="showPage('history')">Historial</button>
+  </nav>
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="searchInput" type="search" placeholder="Buscar películas, series...">
+  </div>
+  <div class="header-actions">
+    <button class="btn-icon" title="Favoritos" onclick="showPage('favorites')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- PÁGINAS -->
+<main>
+
+  <!-- HOME -->
+  <div id="page-home" class="page active">
+    <div class="platform-filters" id="platformFilters">
+      <button class="platform-pill active" data-platform="all" onclick="filterPlatform(this,'all')">Todos</button>
+      <button class="platform-pill netflix" data-platform="Netflix" onclick="filterPlatform(this,'Netflix')">Netflix</button>
+      <button class="platform-pill hbo" data-platform="HBO" onclick="filterPlatform(this,'HBO')">HBO Max</button>
+      <button class="platform-pill amazon" data-platform="Amazon" onclick="filterPlatform(this,'Amazon')">Prime Video</button>
+      <button class="platform-pill disney" data-platform="Disney" onclick="filterPlatform(this,'Disney')">Disney+</button>
+      <button class="platform-pill" data-platform="Otro" onclick="filterPlatform(this,'Otro')">Otros</button>
+    </div>
+
+    <!-- Continuar viendo -->
+    <div class="section" id="continueSection" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title">▶ Continuar <span>viendo</span></h2>
+      </div>
+      <div class="grid" id="continueGrid"></div>
+    </div>
+
+    <!-- Películas -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">🎬 <span>Películas</span></h2>
+        <button class="btn-see-all" onclick="showPage('movies')">Ver todas →</button>
+      </div>
+      <div class="grid" id="moviesGrid"><div class="loading-grid" style="grid-column:1/-1" id="moviesLoading"></div></div>
+    </div>
+
+    <!-- Series -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">📺 <span>Series</span></h2>
+        <button class="btn-see-all" onclick="showPage('series')">Ver todas →</button>
+      </div>
+      <div class="grid" id="seriesGrid"><div class="loading-grid" style="grid-column:1/-1" id="seriesLoading"></div></div>
+    </div>
+
+    <!-- Documentales -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">🎥 <span>Documentales</span></h2>
+        <button class="btn-see-all" onclick="showPage('docs')">Ver todos →</button>
+      </div>
+      <div class="grid" id="docsGrid"></div>
+    </div>
+  </div>
+
+  <!-- PELÍCULAS -->
+  <div id="page-movies" class="page">
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">🎬 Todas las <span>Películas</span></h2></div>
+      <div class="grid large" id="allMoviesGrid"></div>
+    </div>
+  </div>
+
+  <!-- SERIES -->
+  <div id="page-series" class="page">
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">📺 Todas las <span>Series</span></h2></div>
+      <div class="grid large" id="allSeriesGrid"></div>
+    </div>
+  </div>
+
+  <!-- DOCUMENTALES -->
+  <div id="page-docs" class="page">
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">🎥 Todos los <span>Documentales</span></h2></div>
+      <div class="grid large" id="allDocsGrid"></div>
+    </div>
+  </div>
+
+  <!-- FAVORITOS -->
+  <div id="page-favorites" class="page">
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">❤️ Mis <span>Favoritos</span></h2></div>
+      <div class="grid" id="favoritesGrid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <p>No tenés favoritos aún.<br>Hacé clic en ❤️ en cualquier contenido.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div id="page-history" class="page">
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">🕐 <span>Historial</span></h2>
+        <button class="btn-see-all" onclick="clearHistory()">Limpiar →</button>
+      </div>
+      <div class="grid" id="historyGrid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <p>No has visto nada aún.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BÚSQUEDA -->
+  <div id="page-search" class="page">
+    <div class="section">
+      <div class="section-header"><h2 class="section-title">🔍 Resultados de <span id="searchTermDisplay"></span></h2></div>
+      <div class="grid" id="searchGrid"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL DETALLE -->
+<div id="modal">
+  <div class="modal-inner" id="modalInner">
+    <div class="modal-backdrop" id="modalBackdrop">
+      <img id="modalBackdropImg" src="" alt="">
+      <div class="modal-backdrop-gradient"></div>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+      <div class="modal-backdrop-content">
+        <h1 class="modal-title" id="modalTitle"></h1>
+        <p class="modal-tagline" id="modalTagline"></p>
+        <div class="modal-badges" id="modalBadges"></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="playContent()">▶ Reproducir</button>
+        <button class="btn-secondary" id="btnTrailer" onclick="openTrailer()">🎬 Trailer</button>
+        <button class="btn-secondary" id="btnFavorite" onclick="toggleFavorite()">♡ Favorito</button>
+      </div>
+      <p class="modal-overview" id="modalOverview"></p>
+
+      <!-- Guía Parental -->
+      <h3 class="modal-section-title">Guía Parental</h3>
+      <div class="parental-guide" id="parentalGuide"></div>
+
+      <!-- Servidores / Reproductor -->
+      <div class="servers-section" id="serversSection">
+        <h3 class="modal-section-title">Reproducir</h3>
+        <div class="lang-tabs" id="langTabs">
+          <button class="lang-tab active" onclick="setLang(this,'spa')">🇦🇷 Español Latino</button>
+          <button class="lang-tab" onclick="setLang(this,'eng')">🇺🇸 Inglés / Original</button>
+          <button class="lang-tab" onclick="setLang(this,'sub')">📝 Subtítulos</button>
+        </div>
+        <div class="server-tabs" id="serverTabs"></div>
+        <div class="player-wrap" id="playerWrap">
+          <div class="player-placeholder">
+            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <span>Seleccioná un servidor para reproducir</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temporadas (series) -->
+      <div id="seasonsSection" style="display:none">
+        <h3 class="modal-section-title">Temporadas y Episodios</h3>
+        <div class="season-tabs" id="seasonTabs"></div>
+        <div class="episodes-grid" id="episodesGrid"></div>
+        <button class="btn-secondary" id="btnNextSeason" style="margin-top:16px;display:none" onclick="nextSeason()">➡ Siguiente temporada</button>
+      </div>
+
+      <!-- Recomendaciones -->
+      <div style="margin-top:32px">
+        <h3 class="modal-section-title">También te puede gustar</h3>
+        <div class="recommendations" id="recommendations"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TRAILER -->
+<div id="trailerModal">
+  <div class="trailer-inner">
+    <button class="trailer-close" onclick="closeTrailer()">✕ Cerrar</button>
+    <div class="trailer-player"><iframe id="trailerFrame" src="" allowfullscreen></iframe></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIGURACIÓN — EDITÁ AQUÍ TUS CONTENIDOS
+// ═══════════════════════════════════════════════
+// Para agregar contenido, copiá el formato de abajo.
+// tmdbId: buscalo en https://www.themoviedb.org
+// servers: agregá tantos como quieras con URLs de Doodstream, Streamtape, etc.
+// type: "movie", "series" o "doc"
+// platform: "Netflix", "HBO", "Amazon", "Disney" u "Otro"
+
+const CATALOG = [
+  {
+    id: 1,
+    tmdbId: 10681,
+    tmdbType: "movie",
+    type: "movie",
+    platform: "Otro",
+    servers: {
+      spa: [
+        { name: "Servidor 1", url: "" },
+        { name: "Servidor 2", url: "" },
+      ],
+      eng: [
+        { name: "Servidor 1", url: "" },
+      ],
+      sub: [
+        { name: "Servidor 1", url: "" },
+      ]
+    }
+  },
+  {
+    id: 2,
+    tmdbId: 862,
+    tmdbType: "movie",
+    type: "movie",
+    platform: "Disney",
+    servers: {
+      spa: [{ name: "Servidor 1", url: "" }],
+      eng: [{ name: "Servidor 1", url: "" }],
+      sub: []
+    }
+  },
+  {
+    id: 3,
+    tmdbId: 1396,
+    tmdbType: "tv",
+    type: "series",
+    platform: "Netflix",
+    seasons: [
+      {
+        number: 1,
+        episodes: [
+          { number: 1, title: "Piloto", servers: { spa: [{ name: "Servidor 1", url: "" }], eng: [], sub: [] } },
+          { number: 2, title: "El gato en la bolsa", servers: { spa: [{ name: "Servidor 1", url: "" }], eng: [], sub: [] } },
+        ]
+      },
+      {
+        number: 2,
+        episodes: [
+          { number: 1, title: "Seven Thirty-Seven", servers: { spa: [{ name: "Servidor 1", url: "" }], eng: [], sub: [] } },
+        ]
+      }
+    ]
+  },
+  {
+    id: 4,
+    tmdbId: 14534,
+    tmdbType: "movie",
+    type: "doc",
+    platform: "Netflix",
+    servers: {
+      spa: [{ name: "Servidor 1", url: "" }],
+      eng: [{ name: "Servidor 1", url: "" }],
+      sub: []
+    }
+  },
+];
+
+// ═══════════════════════════════════════════════
+// TMDB API
+// ═══════════════════════════════════════════════
+const TMDB_KEY = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9";
+const TMDB_BASE = "https://api.themoviedb.org/3";
+const TMDB_IMG = "https://image.tmdb.org/t/p";
+const TMDB_API_KEY = "2dca580c2a14b55200e784d157207b4d"; // clave pública demo
+
+async function fetchTMDB(path, params = {}) {
+  const url = new URL(TMDB_BASE + path);
+  url.searchParams.set("api_key", TMDB_API_KEY);
+  url.searchParams.set("language", "es-AR");
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  try {
+    const r = await fetch(url);
+    return await r.json();
+  } catch { return null; }
+}
+
+// Cache de datos TMDB
+const tmdbCache = {};
+
+async function getTMDBData(item) {
+  const key = `${item.tmdbType}-${item.tmdbId}`;
+  if (tmdbCache[key]) return tmdbCache[key];
+  const path = `/${item.tmdbType === "tv" ? "tv" : "movie"}/${item.tmdbId}`;
+  const data = await fetchTMDB(path, { append_to_response: "videos,similar,release_dates,content_ratings" });
+  if (data) tmdbCache[key] = data;
+  return data;
+}
+
+// ═══════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════
+let currentItem = null;
+let currentLang = "spa";
+let currentSeason = 1;
+let currentPlatform = "all";
+let favorites = JSON.parse(localStorage.getItem("dmovies_favorites") || "[]");
+let history = JSON.parse(localStorage.getItem("dmovies_history") || "[]");
+let progress = JSON.parse(localStorage.getItem("dmovies_progress") || "{}");
+
+function saveFavorites() { localStorage.setItem("dmovies_favorites", JSON.stringify(favorites)); }
+function saveHistory() { localStorage.setItem("dmovies_history", JSON.stringify(history)); }
+function saveProgress() { localStorage.setItem("dmovies_progress", JSON.stringify(progress)); }
+
+function isFavorite(id) { return favorites.includes(id); }
+function toggleFavorite() {
+  if (!currentItem) return;
+  const id = currentItem.id;
+  if (isFavorite(id)) {
+    favorites = favorites.filter(f => f !== id);
+    document.getElementById("btnFavorite").textContent = "♡ Favorito";
+    toast("Eliminado de favoritos");
+  } else {
+    favorites.push(id);
+    document.getElementById("btnFavorite").textContent = "♥ En favoritos";
+    toast("Agregado a favoritos ❤️");
+  }
+  saveFavorites();
+  renderFavorites();
+}
+
+function addToHistory(id) {
+  history = history.filter(h => h !== id);
+  history.unshift(id);
+  if (history.length > 50) history = history.slice(0, 50);
+  saveHistory();
+  renderHistory();
+}
+
+function clearHistory() {
+  history = [];
+  saveHistory();
+  renderHistory();
+  toast("Historial limpiado");
+}
+
+// ═══════════════════════════════════════════════
+// RENDER CARDS
+// ═══════════════════════════════════════════════
+async function buildCard(item, delay = 0) {
+  const data = await getTMDBData(item);
+  if (!data) return null;
+
+  const title = data.title || data.name || "Sin título";
+  const year = (data.release_date || data.first_air_date || "").slice(0, 4);
+  const rating = data.vote_average ? data.vote_average.toFixed(1) : "—";
+  const poster = data.poster_path ? `${TMDB_IMG}/w300${data.poster_path}` : null;
+  const overview = data.overview || "Sin descripción disponible.";
+  const prog = progress[item.id];
+  const progPct = prog ? Math.min(100, (prog.current / prog.total) * 100) : 0;
+
+  const badgeClass = {Netflix:"badge-netflix",HBO:"badge-hbo",Amazon:"badge-amazon",Disney:"badge-disney"}[item.platform] || "badge-otro";
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.animationDelay = `${delay}ms`;
+  card.innerHTML = `
+    ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" loading="lazy">` : `<div class="card-poster-placeholder">🎬</div>`}
+    <div class="card-platform-badge ${badgeClass}">${item.platform}</div>
+    ${progPct > 0 ? `<div class="card-progress"><div class="card-progress-bar" style="width:${progPct}%"></div></div>` : ""}
+    <div class="card-tooltip">
+      <div class="tooltip-title">${title}</div>
+      <div class="tooltip-overview">${overview}</div>
+      <div class="tooltip-genres">${(data.genres || []).slice(0,3).map(g=>`<span class="tooltip-genre">${g.name}</span>`).join("")}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-title">${title}</div>
+      <div class="card-meta">
+        <span class="card-rating">★ ${rating}</span>
+        <span>${year}</span>
+        ${item.type === "series" ? "<span>Serie</span>" : ""}
+      </div>
+    </div>`;
+  card.onclick = () => openModal(item);
+  return card;
+}
+
+async function renderGrid(items, containerId, limit = null) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+  const toRender = limit ? items.slice(0, limit) : items;
+  for (let i = 0; i < toRender.length; i++) {
+    const card = await buildCard(toRender[i], i * 50);
+    if (card) container.appendChild(card);
+  }
+}
+
+function getFiltered(type) {
+  let items = CATALOG.filter(i => i.type === type);
+  if (currentPlatform !== "all") items = items.filter(i => i.platform === currentPlatform);
+  return items;
+}
+
+async function renderAll() {
+  const movies = getFiltered("movie");
+  const series = getFiltered("series");
+  const docs = getFiltered("doc");
+
+  await renderGrid(movies, "moviesGrid", 8);
+  await renderGrid(series, "seriesGrid", 8);
+  await renderGrid(docs, "docsGrid", 6);
+  await renderGrid(movies, "allMoviesGrid");
+  await renderGrid(series, "allSeriesGrid");
+  await renderGrid(docs, "allDocsGrid");
+
+  renderContinue();
+  renderFavorites();
+  renderHistory();
+}
+
+async function renderContinue() {
+  const items = Object.keys(progress).map(id => CATALOG.find(i => i.id == id)).filter(Boolean);
+  if (items.length === 0) { document.getElementById("continueSection").style.display = "none"; return; }
+  document.getElementById("continueSection").style.display = "block";
+  await renderGrid(items, "continueGrid", 6);
+}
+
+async function renderFavorites() {
+  const items = favorites.map(id => CATALOG.find(i => i.id === id)).filter(Boolean);
+  const container = document.getElementById("favoritesGrid");
+  if (items.length === 0) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><p>No tenés favoritos aún.</p></div>`;
+    return;
+  }
+  await renderGrid(items, "favoritesGrid");
+}
+
+async function renderHistory() {
+  const items = history.map(id => CATALOG.find(i => i.id === id)).filter(Boolean);
+  const container = document.getElementById("historyGrid");
+  if (items.length === 0) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p>No has visto nada aún.</p></div>`;
+    return;
+  }
+  await renderGrid(items, "historyGrid");
+}
+
+// ═══════════════════════════════════════════════
+// MODAL DETALLE
+// ═══════════════════════════════════════════════
+async function openModal(item) {
+  currentItem = item;
+  currentLang = "spa";
+  currentSeason = 1;
+  addToHistory(item.id);
+
+  document.getElementById("modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  const data = await getTMDBData(item);
+  if (!data) return;
+
+  const title = data.title || data.name;
+  const year = (data.release_date || data.first_air_date || "").slice(0, 4);
+  const rating = data.vote_average ? data.vote_average.toFixed(1) : "—";
+  const backdrop = data.backdrop_path ? `${TMDB_IMG}/w1280${data.backdrop_path}` : "";
+  const duration = data.runtime ? `${data.runtime} min` : data.number_of_seasons ? `${data.number_of_seasons} temporada${data.number_of_seasons > 1 ? "s" : ""}` : "";
+  const genres = (data.genres || []).map(g => g.name).join(", ");
+
+  document.getElementById("modalBackdropImg").src = backdrop;
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalTagline").textContent = data.tagline || "";
+  document.getElementById("modalOverview").textContent = data.overview || "Sin descripción disponible.";
+
+  document.getElementById("modalBadges").innerHTML = `
+    <span class="modal-badge badge-year">${year}</span>
+    <span class="modal-badge badge-rating">★ ${rating}</span>
+    ${duration ? `<span class="modal-badge badge-duration">⏱ ${duration}</span>` : ""}
+    ${(data.genres || []).slice(0,3).map(g => `<span class="modal-badge badge-genre">${g.name}</span>`).join("")}`;
+
+  document.getElementById("btnFavorite").textContent = isFavorite(item.id) ? "♥ En favoritos" : "♡ Favorito";
+
+  // Guía parental
+  renderParentalGuide(data);
+
+  // Trailer
+  const videos = data.videos?.results || [];
+  const trailer = videos.find(v => v.type === "Trailer" && v.site === "YouTube") || videos[0];
+  document.getElementById("btnTrailer").style.display = trailer ? "flex" : "none";
+  document.getElementById("btnTrailer").dataset.trailerKey = trailer?.key || "";
+
+  // Servidores / Temporadas
+  if (item.type === "series") {
+    document.getElementById("serversSection").style.display = "none";
+    document.getElementById("seasonsSection").style.display = "block";
+    renderSeasons(item);
+  } else {
+    document.getElementById("serversSection").style.display = "block";
+    document.getElementById("seasonsSection").style.display = "none";
+    renderServers(item.servers);
+  }
+
+  // Recomendaciones
+  renderRecommendations(data, item);
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+  document.body.style.overflow = "";
+  document.getElementById("playerWrap").innerHTML = `<div class="player-placeholder"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>Seleccioná un servidor para reproducir</span></div>`;
+  currentItem = null;
+}
+
+function renderParentalGuide(data) {
+  const container = document.getElementById("parentalGuide");
+  // Ratings simulados basados en datos TMDB disponibles
+  const adult = data.adult;
+  const rating = data.vote_average || 0;
+  
+  const items = [
+    { label: "Violencia", level: rating > 7 ? "yellow" : "green", text: rating > 7 ? "Moderada" : "Leve" },
+    { label: "Lenguaje", level: adult ? "red" : "yellow", text: adult ? "Fuerte" : "Moderado" },
+    { label: "Contenido adulto", level: adult ? "red" : "green", text: adult ? "Presente" : "No" },
+    { label: "Apto menores", level: adult ? "red" : "green", text: adult ? "No" : "Sí" },
+  ];
+
+  container.innerHTML = items.map(i => `
+    <div class="parental-item">
+      <div class="parental-dot dot-${i.level}"></div>
+      <div>
+        <div class="parental-label">${i.label}</div>
+        <div class="parental-value">${i.text}</div>
+      </div>
+    </div>`).join("");
+}
+
+function renderServers(servers) {
+  const tabs = document.getElementById("serverTabs");
+  const langServers = servers?.[currentLang] || [];
+  tabs.innerHTML = langServers.map((s, i) =>
+    `<button class="server-tab ${i===0?'active':''}" onclick="selectServer(this,'${s.url}')">${s.name}</button>`
+  ).join("");
+
+  if (langServers.length > 0 && langServers[0].url) {
+    loadPlayer(langServers[0].url);
+  } else {
+    document.getElementById("playerWrap").innerHTML = `<div class="player-placeholder"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>No hay servidores disponibles para este idioma</span></div>`;
+  }
+}
+
+function selectServer(btn, url) {
+  document.querySelectorAll(".server-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  if (url) loadPlayer(url);
+}
+
+function loadPlayer(url) {
+  const wrap = document.getElementById("playerWrap");
+  if (!url) {
+    wrap.innerHTML = `<div class="player-placeholder"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span>URL de servidor vacía — agregá el enlace en el catálogo</span></div>`;
+    return;
+  }
+  wrap.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
+}
+
+function playContent() {
+  if (!currentItem) return;
+  if (currentItem.type === "series") {
+    // Reproducir primer episodio de temporada actual
+    const season = currentItem.seasons?.find(s => s.number === currentSeason);
+    if (season?.episodes?.[0]) {
+      const ep = season.episodes[0];
+      const servers = ep.servers?.[currentLang] || [];
+      if (servers.length > 0) loadPlayer(servers[0].url);
+    }
+  } else {
+    const servers = currentItem.servers?.[currentLang] || [];
+    if (servers.length > 0) loadPlayer(servers[0].url);
+  }
+  // Scroll al reproductor
+  document.getElementById("playerWrap")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function setLang(btn, lang) {
+  currentLang = lang;
+  document.querySelectorAll(".lang-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  if (currentItem?.type !== "series") renderServers(currentItem?.servers);
+}
+
+// ═══════════════════════════════════════════════
+// TEMPORADAS
+// ═══════════════════════════════════════════════
+function renderSeasons(item) {
+  const tabs = document.getElementById("seasonTabs");
+  tabs.innerHTML = (item.seasons || []).map(s =>
+    `<button class="season-tab ${s.number===currentSeason?'active':''}" onclick="selectSeason(this,${s.number})">T${s.number}</button>`
+  ).join("");
+  renderEpisodes(item, currentSeason);
+  updateNextSeasonBtn(item);
+}
+
+function selectSeason(btn, num) {
+  currentSeason = num;
+  document.querySelectorAll(".season-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderEpisodes(currentItem, num);
+  updateNextSeasonBtn(currentItem);
+}
+
+function renderEpisodes(item, seasonNum) {
+  const season = item.seasons?.find(s => s.number === seasonNum);
+  const grid = document.getElementById("episodesGrid");
+  if (!season) { grid.innerHTML = ""; return; }
+
+  grid.innerHTML = season.episodes.map(ep => {
+    const prog = progress[`${item.id}-s${seasonNum}e${ep.number}`];
+    const pct = prog ? Math.min(100, (prog.current / prog.total) * 100) : 0;
+    return `
+    <div class="episode-card" onclick="playEpisode(${seasonNum},${ep.number})">
+      <div class="episode-number">T${seasonNum} · E${ep.number}</div>
+      <div class="episode-title">${ep.title}</div>
+      <div class="episode-meta">${ep.duration || ""}</div>
+      ${pct > 0 ? `<div class="episode-progress"><div class="episode-progress-bar" style="width:${pct}%"></div></div>` : ""}
+    </div>`;
+  }).join("");
+}
+
+function playEpisode(seasonNum, epNum) {
+  if (!currentItem) return;
+  const season = currentItem.seasons?.find(s => s.number === seasonNum);
+  const ep = season?.episodes?.find(e => e.number === epNum);
+  if (!ep) return;
+  const servers = ep.servers?.[currentLang] || [];
+  if (servers.length > 0) {
+    document.getElementById("serversSection").style.display = "block";
+    renderServers(ep.servers);
+    loadPlayer(servers[0].url);
+    document.getElementById("playerWrap")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  // Marcar como visto en progreso
+  document.querySelectorAll(".episode-card").forEach((c, i) => c.classList.toggle("playing", i === epNum - 1));
+}
+
+function updateNextSeasonBtn(item) {
+  const btn = document.getElementById("btnNextSeason");
+  const seasons = item.seasons || [];
+  const hasNext = seasons.some(s => s.number === currentSeason + 1);
+  btn.style.display = hasNext ? "flex" : "none";
+  btn.textContent = `➡ Temporada ${currentSeason + 1}`;
+}
+
+function nextSeason() {
+  const tabs = document.querySelectorAll(".season-tab");
+  const nextTab = Array.from(tabs).find(t => parseInt(t.textContent.replace("T","")) === currentSeason + 1);
+  if (nextTab) selectSeason(nextTab, currentSeason + 1);
+}
+
+// ═══════════════════════════════════════════════
+// RECOMENDACIONES
+// ═══════════════════════════════════════════════
+async function renderRecommendations(data, currentCatalogItem) {
+  const container = document.getElementById("recommendations");
+  container.innerHTML = `<div class="spinner" style="grid-column:1/-1;padding:20px 0"></div>`;
+
+  // Primero buscar en catálogo local por géneros similares
+  const currentGenres = (data.genres || []).map(g => g.id);
+  const localRecs = CATALOG.filter(i => {
+    if (i.id === currentCatalogItem.id) return false;
+    return true; // En un catálogo pequeño mostrar todos
+  }).slice(0, 4);
+
+  // Luego recomendaciones de TMDB (para mostrar info aunque no estén en catálogo)
+  const tmdbRecs = data.similar?.results?.slice(0, 6) || [];
+
+  container.innerHTML = "";
+
+  // Local primero
+  for (const item of localRecs) {
+    const card = await buildCard(item);
+    if (card) {
+      card.style.animationDelay = "0ms";
+      container.appendChild(card);
+    }
+  }
+
+  // Complementar con TMDB si hay pocos
+  if (localRecs.length < 4) {
+    for (const rec of tmdbRecs.slice(0, 4 - localRecs.length)) {
+      const div = document.createElement("div");
+      div.className = "card";
+      const poster = rec.poster_path ? `${TMDB_IMG}/w200${rec.poster_path}` : null;
+      const title = rec.title || rec.name;
+      const year = (rec.release_date || rec.first_air_date || "").slice(0, 4);
+      div.innerHTML = `
+        ${poster ? `<img class="card-poster" src="${poster}" alt="${title}" loading="lazy">` : `<div class="card-poster-placeholder">🎬</div>`}
+        <div class="card-body">
+          <div class="card-title">${title}</div>
+          <div class="card-meta"><span>${year}</span><span style="color:var(--muted);font-size:.7rem">No en catálogo</span></div>
+        </div>`;
+      container.appendChild(div);
+    }
+  }
+
+  if (container.children.length === 0) {
+    container.innerHTML = `<p style="color:var(--muted);font-size:.85rem;grid-column:1/-1">No hay recomendaciones disponibles.</p>`;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TRAILER
+// ═══════════════════════════════════════════════
+function openTrailer() {
+  const key = document.getElementById("btnTrailer").dataset.trailerKey;
+  if (!key) return;
+  document.getElementById("trailerFrame").src = `https://www.youtube.com/embed/${key}?autoplay=1`;
+  document.getElementById("trailerModal").classList.add("open");
+}
+function closeTrailer() {
+  document.getElementById("trailerFrame").src = "";
+  document.getElementById("trailerModal").classList.remove("open");
+}
+
+// ═══════════════════════════════════════════════
+// NAVEGACIÓN
+// ═══════════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(`page-${name}`).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  const map = {home:0,movies:1,series:2,docs:3,favorites:4,history:5};
+  const btns = document.querySelectorAll("nav button");
+  if (map[name] !== undefined) btns[map[name]]?.classList.add("active");
+  window.scrollTo(0,0);
+}
+
+function filterPlatform(btn, platform) {
+  currentPlatform = platform;
+  document.querySelectorAll(".platform-pill").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════
+// BÚSQUEDA
+// ═══════════════════════════════════════════════
+let searchTimeout;
+document.getElementById("searchInput").addEventListener("input", function() {
+  clearTimeout(searchTimeout);
+  const q = this.value.trim().toLowerCase();
+  if (!q) { showPage("home"); return; }
+  searchTimeout = setTimeout(() => doSearch(q), 400);
+});
+
+async function doSearch(q) {
+  showPage("search");
+  document.getElementById("searchTermDisplay").textContent = `"${q}"`;
+  const results = CATALOG.filter(item => {
+    const data = tmdbCache[`${item.tmdbType}-${item.tmdbId}`];
+    const title = (data?.title || data?.name || "").toLowerCase();
+    return title.includes(q);
+  });
+  await renderGrid(results, "searchGrid");
+  if (results.length === 0) {
+    document.getElementById("searchGrid").innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>No se encontraron resultados para "${q}"</p></div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+// Click fuera del modal
+document.getElementById("modal").addEventListener("click", function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById("trailerModal").addEventListener("click", function(e) {
+  if (e.target === this) closeTrailer();
+});
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+renderAll();
+</script>
+</body>
+</html>
